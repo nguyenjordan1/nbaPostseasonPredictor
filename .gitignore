@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+
+# Environment files
+.env
+
+# Gradle (Java build system)
+.gradle/
+build/
+
+# OS junk
+.DS_Store
