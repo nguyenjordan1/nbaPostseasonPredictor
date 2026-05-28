@@ -7,5 +7,6 @@ To run the application check to see if the data.db is is there. If the tables ar
 
 2. preprocessing - uncomment out the analyzer.py first few functions above the cutoff and do run python -m app.analyzer make sure to comment the preprocessing functions back out
 (Im tinking about just making a seperate file for it called preprocessing)
+(I have now seperated the two so instead of doing this second step please move on to step 3)
 
 3. To analyze do python -m app.analyzer

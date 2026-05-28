@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from app.db import get_connection
+from app.metrics import metrics
 
 
 URL = "https://www.espn.com/nba/teams"
@@ -81,6 +82,7 @@ def fetch_and_store():
     cursor.execute("DELETE FROM teams")
 
     teams = soup.select("h2.di.clr-gray-01.h5")
+    metrics["teams_loaded"] = len(teams)
 
     for i, team in enumerate(teams):
         raw_name = team.text.strip()

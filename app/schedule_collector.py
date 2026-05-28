@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from app.db import get_connection
+from app.metrics import metrics
 
 BASE_URL = "https://www.espn.com/nba/team/schedule/_/name/{}/seasontype/2"
 
@@ -87,6 +88,8 @@ def fetch_games():
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM games")
+    
+    game_count = 0
 
     headers = {"User-Agent": "Mozilla/5.0"}
 
@@ -114,6 +117,8 @@ def fetch_games():
                 INSERT INTO games (team, opponent, game_date, score, location)
                 VALUES (?, ?, ?, ?, ?)
             """, (team_name, opponent, game_date, score, location))
-
+            game_count += 1
+            
+    metrics["games_loaded"] = game_count
     conn.commit()
     conn.close()
