@@ -3,13 +3,17 @@ from app.collector import fetch_and_store
 from app.schedule_collector import fetch_games
 
 def main():
+    print("Creating tables...")
     create_table()
     create_games_table()
 
-    fetch_and_store()   # teams
-    fetch_games()       # games
+    print("Fetching teams...")
+    fetch_and_store()
 
-    print("DONE")
+    print("Fetching games...")
+    fetch_games()
+
+    print("DONE: Pipeline complete")
 
 if __name__ == "__main__":
     main()

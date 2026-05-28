@@ -37,14 +37,62 @@ TEAM_CODES = {
     "wsh": "Washington Wizards"
 }
 
+NAME_FIX = {
+    "Toronto": "Toronto Raptors",
+    "Boston": "Boston Celtics",
+    "Los Angeles": "Los Angeles Lakers",
+    "LA": "Los Angeles Lakers",
+    "Golden State": "Golden State Warriors",
+    "GS": "Golden State Warriors",
+    "Brooklyn": "Brooklyn Nets",
+    "Chicago": "Chicago Bulls",
+    "Miami": "Miami Heat",
+    "Denver": "Denver Nuggets",
+    "Phoenix": "Phoenix Suns",
+    "Utah": "Utah Jazz",
+    "Dallas": "Dallas Mavericks",
+    "Houston": "Houston Rockets",
+    "Memphis": "Memphis Grizzlies",
+    "Orlando": "Orlando Magic",
+    "Atlanta": "Atlanta Hawks",
+    "Milwaukee": "Milwaukee Bucks",
+    "Indiana": "Indiana Pacers",
+    "Detroit": "Detroit Pistons",
+    "Cleveland": "Cleveland Cavaliers",
+    "Philadelphia": "Philadelphia 76ers",
+    "Portland": "Portland Trail Blazers",
+    "Sacramento": "Sacramento Kings",
+    "San Antonio": "San Antonio Spurs",
+    "Washington": "Washington Wizards",
+    "Minnesota": "Minnesota Timberwolves",
+    "New Orleans": "New Orleans Pelicans",
+    "Oklahoma City": "Oklahoma City Thunder",
+    "Charlotte": "Charlotte Hornets",
+    "New York": "New York Knicks"
+}
+
+def clean_opponent(raw):
+    raw = raw.replace("@", "").replace("vs", "").strip()
+    return NAME_FIX.get(raw, raw)
+
+def get_location(raw):
+    if "@" in raw:
+        return "Away"
+    elif "vs" in raw:
+        return "Home"
+    return "Unknown"
+
 def fetch_games():
     conn = get_connection()
     cursor = conn.cursor()
 
+    cursor.execute("DELETE FROM games")
+
+    headers = {"User-Agent": "Mozilla/5.0"}
+
     for code, team_name in TEAM_CODES.items():
         url = BASE_URL.format(code)
 
-        headers = {"User-Agent": "Mozilla/5.0"}
         res = requests.get(url, headers=headers)
         soup = BeautifulSoup(res.text, "html.parser")
 
@@ -56,13 +104,16 @@ def fetch_games():
                 continue
 
             game_date = cols[0].text.strip()
-            opponent = cols[1].text.strip()
+            raw_opponent = cols[1].text.strip()
             score = cols[2].text.strip()
 
+            opponent = clean_opponent(raw_opponent)
+            location = get_location(raw_opponent)
+
             cursor.execute("""
-                INSERT INTO games (team, opponent, game_date, score)
-                VALUES (?, ?, ?, ?)
-            """, (team_name, opponent, game_date, score))
+                INSERT INTO games (team, opponent, game_date, score, location)
+                VALUES (?, ?, ?, ?, ?)
+            """, (team_name, opponent, game_date, score, location))
 
     conn.commit()
     conn.close()

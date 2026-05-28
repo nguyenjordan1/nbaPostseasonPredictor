@@ -12,7 +12,8 @@ def create_table():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS teams (
         id INTEGER PRIMARY KEY,
-        name TEXT
+        name TEXT,
+        conference TEXT
     )
     """)
 
@@ -29,7 +30,8 @@ def create_games_table():
         team TEXT,
         opponent TEXT,
         game_date TEXT,
-        score TEXT
+        score TEXT,
+        location TEXT
     )
     """)
 
