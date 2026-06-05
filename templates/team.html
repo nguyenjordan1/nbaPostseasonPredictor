@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ team }}</title>
+</head>
+<body>
+
+    <h1>{{ team }}</h1>
+
+    <a href="/">← Back to Teams</a>
+
+    <br><br>
+
+    <table border="1">
+
+        <tr>
+            <th>Date</th>
+            <th>Opponent</th>
+            <th>Score</th>
+            <th>Location</th>
+        </tr>
+
+        {% for game in games %}
+        <tr>
+            <td>{{ game[3] }}</td>
+            <td>{{ game[2] }}</td>
+            <td>{{ game[4] }}</td>
+            <td>{{ game[5] }}</td>
+        </tr>
+        {% endfor %}
+
+    </table>
+
+</body>
+</html>

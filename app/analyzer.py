@@ -34,38 +34,66 @@ CONFERENCE = {
     "Utah Jazz": "West"
 }
 
+def parse_score(score):
+    """
+    Converts:
+        "L138-118" -> ("L", 138, 118)
+        "W120-110" -> ("W", 120, 110)
+    """
+    if not score or len(score) < 4:
+        return None
+
+    try:
+        result = score[0]
+        nums = score[1:]
+        team_score, opp_score = nums.split("-")
+        return result, int(team_score), int(opp_score)
+    except:
+        return None
+
+
+# ---------------------------
+# 1. Home vs Away Win %
+# ---------------------------
+
 def home_vs_away_win_percentage():
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT location, score
-        FROM games
-    """)
+    cursor.execute("SELECT location, score FROM games")
+    rows = cursor.fetchall()
 
     home_wins = home_games = 0
     away_wins = away_games = 0
 
-    for location, score in cursor.fetchall():
-
-        if not score:
+    for location, score in rows:
+        parsed = parse_score(score)
+        if not parsed:
             continue
+
+        result, _, _ = parsed
 
         if location == "Home":
             home_games += 1
-            if score.startswith("W"):
+            if result == "W":
                 home_wins += 1
 
         elif location == "Away":
             away_games += 1
-            if score.startswith("W"):
+            if result == "W":
                 away_wins += 1
-
-    print("🏠 Home Win %:", round((home_wins / home_games * 100), 2) if home_games else 0)
-    print("✈️ Away Win %:", round((away_wins / away_games * 100), 2) if away_games else 0)
 
     conn.close()
 
+    return {
+        "home_win_pct": round((home_wins / home_games) * 100, 2) if home_games else 0,
+        "away_win_pct": round((away_wins / away_games) * 100, 2) if away_games else 0
+    }
+
+
+# ---------------------------
+# 2. East vs West Win %
+# ---------------------------
 
 def east_vs_west_win_percentage():
     conn = get_connection()
@@ -78,128 +106,111 @@ def east_vs_west_win_percentage():
         JOIN teams t2 ON g.opponent = t2.name
     """)
 
+    rows = cursor.fetchall()
+
     east_wins = east_games = 0
     west_wins = west_games = 0
 
-    for team, team_conf, opp, opp_conf, score in cursor.fetchall():
+    for _, team_conf, _, opp_conf, score in rows:
+        parsed = parse_score(score)
+        if not parsed:
+            continue
+
+        result, _, _ = parsed
 
         if team_conf == "East" and opp_conf == "West":
             east_games += 1
-            if score.startswith("W"):
+            if result == "W":
                 east_wins += 1
 
         elif team_conf == "West" and opp_conf == "East":
             west_games += 1
-            if score.startswith("W"):
+            if result == "W":
                 west_wins += 1
 
-    print("🟦 East vs West Win %:", round((east_wins / east_games * 100), 2) if east_games else 0)
-    print("🟥 West vs East Win %:", round((west_wins / west_games * 100), 2) if west_games else 0)
+    conn.close()
+
+    return {
+        "east_win_pct": round((east_wins / east_games) * 100, 2) if east_games else 0,
+        "west_win_pct": round((west_wins / west_games) * 100, 2) if west_games else 0
+    }
 
 def overall_team_rankings():
-
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT team, score
-        FROM games
-    """)
+    cursor.execute("SELECT team, score FROM games")
+    rows = cursor.fetchall()
 
     stats = {}
 
-    for team, score in cursor.fetchall():
-
-        if not score:
+    for team, score in rows:
+        parsed = parse_score(score)
+        if not parsed:
             continue
+
+        result, _, _ = parsed
 
         if team not in stats:
-            stats[team] = {
-                "wins": 0,
-                "games": 0
-            }
+            stats[team] = {"wins": 0, "games": 0}
 
         stats[team]["games"] += 1
-
-        if score.startswith("W"):
+        if result == "W":
             stats[team]["wins"] += 1
-
-    rankings = []
-
-    for team, data in stats.items():
-
-        win_pct = (
-            data["wins"] / data["games"] * 100
-        )
-
-        rankings.append((team, win_pct))
-
-    rankings.sort(key=lambda x: x[1], reverse=True)
-
-    print("\n🏆 Overall Team Rankings")
-
-    for i, (team, pct) in enumerate(rankings[:10], start=1):
-        print(f"{i}. {team} - {round(pct, 2)}%")
 
     conn.close()
 
-def average_point_differential():
+    rankings = []
+    for team, data in stats.items():
+        win_pct = (data["wins"] / data["games"]) * 100
+        rankings.append({
+            "team": team,
+            "win_pct": round(win_pct, 2)
+        })
 
+    rankings.sort(key=lambda x: x["win_pct"], reverse=True)
+    return rankings
+
+def average_point_differential():
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT team, score
-        FROM games
-    """)
+    cursor.execute("SELECT team, score FROM games")
+    rows = cursor.fetchall()
 
     stats = {}
 
-    for team, score in cursor.fetchall():
-
-        if not score:
+    for team, score in rows:
+        parsed = parse_score(score)
+        if not parsed:
             continue
 
-        try:
-            result = score[0]
-            numbers = score[1:]
-            team_score, opp_score = numbers.split("-")
-            team_score = int(team_score)
-            opp_score = int(opp_score)
-            margin = abs(team_score - opp_score)
-            if result == "W":
-                differential = margin
-            else:
-                differential = -margin
-            if team not in stats:
-                stats[team] = {
-                    "total_diff": 0,
-                    "games": 0
-                }
-            stats[team]["total_diff"] += differential
-            stats[team]["games"] += 1
+        result, team_score, opp_score = parsed
 
-        except:
-            continue
+        margin = team_score - opp_score
+        differential = margin if result == "W" else -margin
 
-    rankings = []
+        if team not in stats:
+            stats[team] = {"total_diff": 0, "games": 0}
 
-    for team, data in stats.items():
-        avg_diff = (
-            data["total_diff"] / data["games"]
-        )
-        rankings.append((team, avg_diff))
-    rankings.sort(key=lambda x: x[1], reverse=True)
-
-    print("\n🏀 Average Point Differential")
-
-    for i, (team, diff) in enumerate(rankings, start=1):
-        print(f"{i}. {team} : {round(diff, 2)}")
+        stats[team]["total_diff"] += differential
+        stats[team]["games"] += 1
 
     conn.close()
 
+    rankings = []
+    for team, data in stats.items():
+        avg = data["total_diff"] / data["games"]
+        rankings.append({
+            "team": team,
+            "avg_diff": round(avg, 2)
+        })
+
+    rankings.sort(key=lambda x: x["avg_diff"], reverse=True)
+    return rankings
+
 if __name__ == "__main__":
-    home_vs_away_win_percentage()
-    east_vs_west_win_percentage()
-    overall_team_rankings()
-    average_point_differential()
+    print(home_vs_away_win_percentage())
+    print(east_vs_west_win_percentage())
+    print(overall_team_rankings()[:10])
+    print(average_point_differential()[:10])

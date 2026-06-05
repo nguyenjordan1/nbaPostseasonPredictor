@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sports Predictor Dashboard</title>
+</head>
+
+<body>
+
+<h1>🏀 Sports Predictor Dashboard</h1>
+<h2>NBA Teams</h2>
+<ul>
+    {% for team in teams %}
+        <li>
+            <a href="/team/{{ team[0] }}">
+                {{ team[1] }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+
+<hr>
+<h2>📊 Analytics Dashboard</h2>
+
+<div id="homeAway"></div>
+<div id="eastWest"></div>
+<div id="rankings"></div>
+<div id="differential"></div>
+
+<script>
+async function loadAnalytics() {
+
+    const homeAway = await fetch("/api/home-away").then(r => r.json());
+    document.getElementById("homeAway").innerHTML =
+        `<h3>🏠 Home Win %: ${homeAway.home_win_pct}% | ✈️ Away Win %: ${homeAway.away_win_pct}%</h3>`;
+
+    const eastWest = await fetch("/api/east-west").then(r => r.json());
+    document.getElementById("eastWest").innerHTML =
+        `<h3>🟦 East Win %: ${eastWest.east_win_pct}% | 🟥 West Win %: ${eastWest.west_win_pct}%</h3>`;
+
+    const rankings = await fetch("/api/rankings").then(r => r.json());
+
+    let rankingHTML = "<h3>🏆 Top Teams</h3><ol>";
+    rankings.slice(0, 10).forEach(t => {
+        rankingHTML += `<li>${t.team} : ${t.win_pct}%</li>`;
+    });
+    rankingHTML += "</ol>";
+
+    document.getElementById("rankings").innerHTML = rankingHTML;
+
+    const diff = await fetch("/api/differential").then(r => r.json());
+
+    let diffHTML = "<h3>📈 Average Point Differential</h3><ol>";
+    diff.slice(0, 10).forEach(t => {
+        diffHTML += `<li>${t.team} : ${t.avg_diff}</li>`;
+    });
+    diffHTML += "</ol>";
+
+    document.getElementById("differential").innerHTML = diffHTML;
+}
+
+loadAnalytics();
+</script>
+
+</body>
+</html>
