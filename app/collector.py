@@ -6,7 +6,7 @@ from app.metrics import metrics
 
 URL = "https://www.espn.com/nba/teams"
 
-# Conference mapping
+#Conferences
 EAST_TEAMS = {
     "Boston Celtics", "Brooklyn Nets", "New York Knicks",
     "Philadelphia 76ers", "Toronto Raptors", "Chicago Bulls",
@@ -23,7 +23,7 @@ WEST_TEAMS = {
     "Sacramento Kings", "San Antonio Spurs", "Utah Jazz"
 }
 
-# normalizing names
+# Normalize names
 NAME_FIX = {
     "Toronto": "Toronto Raptors",
     "Boston": "Boston Celtics",
@@ -58,7 +58,9 @@ NAME_FIX = {
     "New York": "New York Knicks"
 }
 
-
+# Get Conferences of Teams
+# @name team name
+# return conference
 def get_conference(name):
     if name in EAST_TEAMS:
         return "East"

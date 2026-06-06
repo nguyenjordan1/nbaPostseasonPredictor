@@ -5,6 +5,7 @@ from app.metrics import metrics
 
 BASE_URL = "https://www.espn.com/nba/team/schedule/_/name/{}/seasontype/2"
 
+# Normalize Names
 TEAM_CODES = {
     "atl": "Atlanta Hawks",
     "bos": "Boston Celtics",
@@ -76,6 +77,8 @@ def clean_opponent(raw):
     raw = raw.replace("@", "").replace("vs", "").strip()
     return NAME_FIX.get(raw, raw)
 
+# Get Locations of Games
+# @raw
 def get_location(raw):
     if "@" in raw:
         return "Away"
@@ -83,6 +86,7 @@ def get_location(raw):
         return "Home"
     return "Unknown"
 
+# Get Games
 def fetch_games():
     conn = get_connection()
     cursor = conn.cursor()
@@ -118,7 +122,7 @@ def fetch_games():
                 VALUES (?, ?, ?, ?, ?)
             """, (team_name, opponent, game_date, score, location))
             game_count += 1
-            
+
     metrics["games_loaded"] = game_count
     conn.commit()
     conn.close()

@@ -1,10 +1,12 @@
 import sqlite3
+# These shoudl only be run once to initialize the tables and not run again
 
 DB_NAME = "data.db"
 
 def get_connection():
     return sqlite3.connect(DB_NAME)
 
+# Creates table for teams if it doesn't already exist
 def create_table():
     conn = get_connection()
     cursor = conn.cursor()
@@ -20,6 +22,7 @@ def create_table():
     conn.commit()
     conn.close()
 
+# Creates the games table if it doesnt already exist
 def create_games_table():
     conn = get_connection()
     cursor = conn.cursor()

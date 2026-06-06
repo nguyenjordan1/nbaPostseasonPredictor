@@ -1,5 +1,6 @@
 from app.db import get_connection
 
+# Conferences
 CONFERENCE = {
     "Boston Celtics": "East",
     "Brooklyn Nets": "East",
@@ -34,6 +35,9 @@ CONFERENCE = {
     "Utah Jazz": "West"
 }
 
+# Parse Score 
+# @score score from games table 
+# return score parsed
 def parse_score(score):
     """
     Converts:
@@ -52,10 +56,8 @@ def parse_score(score):
         return None
 
 
-# ---------------------------
-# 1. Home vs Away Win %
-# ---------------------------
-
+# Home Vs Away Win Percentage
+# return the home and the away win percentage
 def home_vs_away_win_percentage():
     conn = get_connection()
     cursor = conn.cursor()
@@ -91,10 +93,8 @@ def home_vs_away_win_percentage():
     }
 
 
-# ---------------------------
-# 2. East vs West Win %
-# ---------------------------
-
+# East Vs West Win Percentage
+# return the percentages of east and west when playing each other
 def east_vs_west_win_percentage():
     conn = get_connection()
     cursor = conn.cursor()
@@ -135,6 +135,8 @@ def east_vs_west_win_percentage():
         "west_win_pct": round((west_wins / west_games) * 100, 2) if west_games else 0
     }
 
+# Overall team Rankings based on number of wins
+# return rankings of teams based on wins
 def overall_team_rankings():
     conn = get_connection()
     cursor = conn.cursor()
@@ -171,6 +173,8 @@ def overall_team_rankings():
     rankings.sort(key=lambda x: x["win_pct"], reverse=True)
     return rankings
 
+# Average Point differential
+# return the point differential of teams
 def average_point_differential():
     conn = get_connection()
     cursor = conn.cursor()
