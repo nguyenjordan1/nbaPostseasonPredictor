@@ -3,13 +3,9 @@
 To run the application check to see if the data.db is is there. If the tables are not looking correct delete the database and recollect the data. This could also be helpful to do if the season is still going on an the games are still updating. 
 
 1. Check database
-1b. if need to delete databse: delete and do python -m app.run to recollect data
+1b. if need to delete database: delete and do python -m app.run to recollect data 
 
-2. preprocessing - uncomment out the analyzer.py first few functions above the cutoff and do run python -m app.analyzer make sure to comment the preprocessing functions back out
-(Im tinking about just making a seperate file for it called preprocessing)
-(I have now seperated the two so instead of doing this second step please move on to step 3)
-
-3. To analyze do python -m app.analyzer
+2. To analyze do python -m app.analyzer
 
 For the application I decided to go with modular architecture. I have separated the responsibilities across different components. Data Collection, analytics, metrics tracking, and web routes. These four components should satisfy all of the requirements for the rubric. This separation allows for maintainability and makes the code easier to understand. With modularity I am also able to test different parts of my system without affecting the rest of the system. 
 
@@ -20,3 +16,4 @@ For the data collection I have decided to webscrape ESPN with Requests and Beaut
 I use Rest style API endpoints that return JSON data. THis separates the presentation layer from the analytics layer. The frontend uses a simple HtML template combined with JavaScript fetch requests to dynamically load analytics from the API endpoints. 
 
 The last few things that I have are metrics and testing. Metrics are used to track operational statistics like number requests, team loaded, and games loaded. The last thing is unit tests which use Pytest and Flask’s test client to validate application behavior.
+

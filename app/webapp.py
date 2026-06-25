@@ -6,7 +6,7 @@ from app.schedule_collector import fetch_games
 import os
 
 # imports functions from analyzer 
-from app.analyzer import (
+from app.exploratory_analysis.analyzer import (
     home_vs_away_win_percentage,
     east_vs_west_win_percentage,
     overall_team_rankings,

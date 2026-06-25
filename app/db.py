@@ -40,3 +40,47 @@ def create_games_table():
 
     conn.commit()
     conn.close()
+
+# Creates table for each team  
+def create_team_stats_table():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS team_stats (
+
+        team_name TEXT PRIMARY KEY,
+
+        games_played INTEGER,
+        wins INTEGER,
+        losses INTEGER,
+        win_pct REAL,
+
+        home_wins INTEGER,
+        home_losses INTEGER,
+        home_win_pct REAL,
+
+        away_wins INTEGER,
+        away_losses INTEGER,
+        away_win_pct REAL,
+
+        points_for INTEGER,
+        points_against INTEGER,
+
+        avg_points_for REAL,
+        avg_points_against REAL,
+
+        avg_point_diff REAL,
+        elo_rating REAL,
+        
+        recent_wins INTEGER,
+        recent_games INTEGER,
+        recent_form REAL,
+                   
+        strength_of_schedule REAL
+    )
+    """)
+
+    conn.commit()
+    conn.close()
