@@ -13,7 +13,10 @@ recent_games = number of games (10)
 
 from app.db import get_connection
 
-
+"""
+Calculates the 10 most recent games to see how each team is 
+doing
+"""
 def calculate_recent_form():
 
     conn = get_connection()

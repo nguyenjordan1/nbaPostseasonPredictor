@@ -10,6 +10,12 @@ Average points scored, Average points allowed, average point diff
 from app.db import get_connection
 
 
+"""
+parse scores to seperate W column, home score, and away score
+
+@score - scorea unparsed 
+return result, team_score, opp_score
+"""
 def parse_score(score):
     """
     Converts:
@@ -31,7 +37,9 @@ def parse_score(score):
     except:
         return None
 
-
+"""
+Builds and stores team features into teams_stats table
+"""
 
 def build_team_features():
 
@@ -118,14 +126,10 @@ def build_team_features():
         team_stats["points_for"] += team_points
         team_stats["points_against"] += opp_points
 
-
-
     # remove previous feature data
     cursor.execute("""
         DELETE FROM team_stats
     """)
-
-
 
     # insert engineered features
     for team, data in stats.items():
@@ -176,8 +180,6 @@ def build_team_features():
             avg_points_for -
             avg_points_against
         )
-
-
 
         cursor.execute("""
         INSERT INTO team_stats

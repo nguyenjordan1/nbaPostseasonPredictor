@@ -25,7 +25,12 @@ developed by Arpad Elo for chess and is now used for analytics
 
 from app.db import get_connection
 
+"""
+parse scores to seperate W column, home score, and away score
 
+@score - scorea unparsed 
+return result, team_score, opp_score
+"""
 def parse_score(score):
     """
     W120-110 -> ("W",120,110)
@@ -46,8 +51,9 @@ def parse_score(score):
     except:
         return None
 
-
-# This function calculates Elo ratings for every team based on historical data
+"""
+This function calculates Elo ratings for every team based on historical data
+"""
 def calculate_elo():
 
     conn = get_connection()

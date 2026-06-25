@@ -12,6 +12,9 @@ strength_of_schedule = average win percentage
 from app.db import get_connection
 
 
+"""
+Calculates the strength of each teams schedule
+"""
 def calculate_strength_of_schedule():
 
     conn = get_connection()
