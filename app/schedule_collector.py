@@ -74,7 +74,12 @@ NAME_FIX = {
 }
 
 def clean_opponent(raw):
-    raw = raw.replace("@", "").replace("vs", "").strip()
+
+    raw = raw.replace("@", "")
+    raw = raw.replace("vs", "")
+    raw = raw.replace("*", "")
+    raw = raw.strip()
+
     return NAME_FIX.get(raw, raw)
 
 # Get Locations of Games
