@@ -3,6 +3,7 @@ from app.metrics import metrics
 from app.db import create_table, get_connection
 from app.collector import fetch_and_store
 from app.schedule_collector import fetch_games
+from app.ml.kmeans_visualization import get_kmeans_visualization
 import os
 
 # imports functions from analyzer 
@@ -94,6 +95,10 @@ def api_rankings():
 def api_differential():
     return jsonify(average_point_differential())
 
+@app.route("/api/kmeans")
+def api_kmeans():
+    return jsonify(get_kmeans_visualization())
+
 # Load data....
 # I don't think I use this
 @app.route("/load-data")
@@ -119,7 +124,6 @@ def get_metrics():
     metrics["requests"] += 1
 
     return jsonify(metrics)
-
 
 if __name__ == "__main__":
     app.run(debug=True)

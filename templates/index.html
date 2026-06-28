@@ -6,6 +6,9 @@
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
 </head>
 
 <body>
@@ -48,6 +51,14 @@
 
         <div class="analytics-card" id="differential">
             Loading Point Differentials...
+        </div>
+
+        <div class="analytics-card">
+
+            <h3>📊 Team Clusters</h3>
+
+            <div id="kmeansChart"></div>
+
         </div>
 
     </div>
@@ -97,6 +108,109 @@ async function loadAnalytics() {
 }
 
 loadAnalytics();
+</script>
+
+<script>
+
+async function loadKMeans(){
+
+    const data = await fetch("/api/kmeans")
+        .then(r => r.json());
+
+
+    let clusters = {};
+
+
+    data.forEach(team => {
+
+        if(!clusters[team.cluster]){
+
+            clusters[team.cluster] = {
+                x: [],
+                y: [],
+                text: [],
+                hover: []
+            };
+
+        }
+
+
+        clusters[team.cluster].x.push(team.x);
+
+        clusters[team.cluster].y.push(team.y);
+
+        clusters[team.cluster].text.push(team.team);
+
+
+        clusters[team.cluster].hover.push(
+            `
+            <b>${team.team}</b><br>
+            Cluster: ${team.cluster}<br>
+            <br>
+            Win %: ${(team.win_pct * 100).toFixed(1)}%<br>
+            Elo: ${team.elo_rating.toFixed(0)}<br>
+            Recent Form: ${(team.recent_form * 100).toFixed(0)}%<br>
+            Avg Point Diff: +${team.avg_point_diff.toFixed(2)}
+            `
+        );
+
+    });
+
+
+
+    let traces = [];
+
+
+    for(let cluster in clusters){
+
+        traces.push({
+
+            x: clusters[cluster].x,
+
+            y: clusters[cluster].y,
+
+            text: clusters[cluster].text,
+
+            customdata: clusters[cluster].hover,
+
+            mode: "markers",
+
+            type: "scatter",
+
+            name: "Cluster " + cluster,
+
+
+            hovertemplate:
+                "%{customdata}" +
+                "<extra></extra>"
+
+        });
+
+    }
+
+
+
+    Plotly.newPlot(
+        "kmeansChart",
+        traces,
+        {
+            title:"NBA Team Clusters (PCA)",
+
+            xaxis:{
+                title:"Principal Component 1"
+            },
+
+            yaxis:{
+                title:"Principal Component 2"
+            }
+        }
+    );
+
+}
+
+
+loadKMeans();
+
 </script>
 
 </body>
