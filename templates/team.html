@@ -10,13 +10,47 @@
 
 <body>
 
-<div class="container">
+    <div class="container">
 
     <h1>🏀 {{ team }}</h1>
 
     <a href="/">← Back to Dashboard</a>
 
     <hr>
+    <hr>
+
+    <h2>🔎 Similar Teams</h2>
+    <div class="analytics-card">
+        <table class="team-table">
+
+            <thead>
+                <tr>
+                    <th>Team</th>
+                    <th>Similarity</th>
+                    <th>Win %</th>
+                    <th>Elo</th>
+                    <th>Recent Form</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for similar in similar_teams %}
+                <tr>
+                    <td>
+                        <a href="/team/{{ similar.id }}">
+                            {{ similar.team }}
+                        </a>
+                    </td>
+                    <td>{{ "%.1f"|format(similar.similarity * 100) }}%</td>
+                    <td>{{ "%.1f"|format(similar.win_pct * 100) }}%</td>
+                    <td>{{ "%.0f"|format(similar.elo_rating) }}</td>
+                    <td>{{ "%.0f"|format(similar.recent_form * 100) }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
 
     <h2>📊 Game History</h2>
 
@@ -43,7 +77,6 @@
             </tbody>
         </table>
     </div>
-
 </div>
 
 </body>

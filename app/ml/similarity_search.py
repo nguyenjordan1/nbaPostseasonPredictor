@@ -14,22 +14,26 @@ def load_team_features():
     query = """
     SELECT
 
-        team_name,
+        t.id,
 
-        win_pct,
-        home_win_pct,
-        away_win_pct,
+        ts.team_name,
 
-        avg_points_for,
-        avg_points_against,
-        avg_point_diff,
+        ts.win_pct,
+        ts.home_win_pct,
+        ts.away_win_pct,
 
-        elo_rating,
+        ts.avg_points_for,
+        ts.avg_points_against,
+        ts.avg_point_diff,
 
-        recent_form,
-        strength_of_schedule
+        ts.elo_rating,
 
-    FROM team_stats
+        ts.recent_form,
+        ts.strength_of_schedule
+
+    FROM team_stats ts
+    JOIN teams t
+    ON ts.team_name = t.name
     """
 
     df = pd.read_sql_query(query, conn)
@@ -48,7 +52,7 @@ def find_similar_teams(team_name, count=5):
     names = df["team_name"]
 
 
-    X = df.drop(columns=["team_name"])
+    X = df.drop(columns=["id", "team_name"])
 
 
 
@@ -92,24 +96,23 @@ def find_similar_teams(team_name, count=5):
 
     for index, score in scores:
 
-        # skip itself
         if index == team_index:
             continue
-        
-        results.append(
-            (
-                names[index],
-                round(score,3)
-            )
-        )
+        team = df.iloc[index]
+        results.append({
+            "id": team["id"],
+            "team": team["team_name"],
+            "similarity": round(score, 3),
+            "win_pct": team["win_pct"],
+            "elo_rating": team["elo_rating"],
+            "recent_form": team["recent_form"],
+            "avg_point_diff": team["avg_point_diff"]
+        })
 
         if len(results) == count:
             break
 
-
     return results
-
-
 
 if __name__ == "__main__":
 
@@ -119,9 +122,8 @@ if __name__ == "__main__":
     )
     results = find_similar_teams(team)
 
-    for name, score in results:
-
+    for team in results:
         print(
-            name,
-            score
+            team["team"],
+            team["similarity"]
         )

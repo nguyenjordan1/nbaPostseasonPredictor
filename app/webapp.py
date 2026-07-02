@@ -4,6 +4,8 @@ from app.db import create_table, get_connection
 from app.collector import fetch_and_store
 from app.schedule_collector import fetch_games
 from app.ml.kmeans_visualization import get_kmeans_visualization
+from app.ml.similarity_search import find_similar_teams
+from app.ml.pagerank import calculate_pagerank, get_pagerank_graph
 import os
 
 # imports functions from analyzer 
@@ -41,6 +43,7 @@ def team_page(team_id):
     """, (team_id,))
 
     team = cursor.fetchone()[0]
+    similar_teams = find_similar_teams(team)
 
     cursor.execute("""
         SELECT *
@@ -55,7 +58,8 @@ def team_page(team_id):
     return render_template(
         "team.html",
         team=team,
-        games=games
+        games=games,
+        similar_teams=similar_teams
     )
 
 # Home page 
@@ -98,6 +102,29 @@ def api_differential():
 @app.route("/api/kmeans")
 def api_kmeans():
     return jsonify(get_kmeans_visualization())
+
+@app.route("/api/pagerank")
+def api_pagerank():
+
+    rankings = calculate_pagerank()
+
+    results = []
+
+    for team, score in rankings:
+
+        results.append({
+            "team": team,
+            "pagerank": round(score, 4)
+        })
+
+    return jsonify(results)
+
+@app.route("/api/pagerank-graph")
+def api_pagerank_graph():
+
+    return jsonify(
+        get_pagerank_graph()
+    )
 
 # Load data....
 # I don't think I use this

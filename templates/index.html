@@ -55,6 +55,14 @@
 
         <div class="analytics-card">
 
+            <h3>🌐 Team Influence Network</h3>
+
+            <div id="pagerankGraph"></div>
+
+        </div>
+
+        <div class="analytics-card">
+
             <h3>📊 Team Clusters</h3>
 
             <div id="kmeansChart"></div>
@@ -210,6 +218,71 @@ async function loadKMeans(){
 
 
 loadKMeans();
+
+async function loadPageRankGraph(){
+
+    const data = await fetch("/api/pagerank-graph")
+        .then(r => r.json());
+
+
+    let teams = data.nodes.sort(
+        (a,b) => b.score - a.score
+    );
+
+
+    // Top 10 only
+    teams = teams.slice(0,10);
+
+
+    let trace = {
+
+        x: teams.map(t => t.team),
+
+        y: teams.map(t => t.score),
+
+
+        type:"bar",
+
+
+        hovertemplate:
+            "<b>%{x}</b><br>" +
+            "PageRank: %{y:.4f}" +
+            "<extra></extra>"
+    };
+
+
+    Plotly.newPlot(
+        "pagerankGraph",
+        [trace],
+        {
+
+            title:"🌐 Top 10 Team Influence (PageRank)",
+
+
+            xaxis:{
+                title:"Team",
+                tickangle:-45
+            },
+
+
+            yaxis:{
+                title:"Influence Score"
+            },
+
+
+            height:500,
+
+            margin:{
+                b:150
+            }
+
+        }
+    );
+
+}
+
+
+loadPageRankGraph();
 
 </script>
 

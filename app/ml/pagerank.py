@@ -65,6 +65,31 @@ def calculate_pagerank():
     )
     return rankings
 
+def get_pagerank_graph():
+    G = build_graph()
+    rankings = nx.pagerank(
+        G,
+        weight="weight"
+    )
+    nodes = []
+    edges = []
+
+    for team, score in rankings.items():
+        nodes.append({
+            "team": team,
+            "score": score
+        })
+
+    for loser, winner in G.edges():
+        edges.append({
+            "source": loser,
+            "target": winner
+        })
+
+    return {
+        "nodes": nodes,
+        "edges": edges
+    }
 
 if __name__ == "__main__":
 
